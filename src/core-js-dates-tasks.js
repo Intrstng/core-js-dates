@@ -200,8 +200,10 @@ function getCountWeekendsInMonth(month, year) {
  * Date(2024, 0, 31) => 5
  * Date(2024, 1, 23) => 8
  */
-function getWeekNumberByDate(/* date */) {
-  throw new Error('Not implemented');
+function getWeekNumberByDate(date) {
+  date.setDate(date.getDate() + 4 - (date.getDay() || 7));
+  const yearStart = new Date(date.getFullYear(), 0, 1);
+  return Math.ceil(((date - yearStart) / (1000 * 3600 * 24) + 1) / 7);
 }
 
 /**
@@ -261,8 +263,33 @@ function getQuarter(date) {
  * { start: '01-01-2024', end: '15-01-2024' }, 1, 3 => ['01-01-2024', '05-01-2024', '09-01-2024', '13-01-2024']
  * { start: '01-01-2024', end: '10-01-2024' }, 1, 1 => ['01-01-2024', '03-01-2024', '05-01-2024', '07-01-2024', '09-01-2024']
  */
-function getWorkSchedule(/* period, countWorkDays, countOffDays */) {
-  throw new Error('Not implemented');
+function changeFormatDate(date) {
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}-${month}-${year}`;
+}
+
+function getWorkSchedule(period, countWorkDays, countOffDays) {
+  const { start, end } = period;
+  const startDate = new Date(start.split('-').reverse().join());
+  const endDate = new Date(end.split('-').reverse().join());
+  const workSchedule = [];
+
+  while (startDate <= endDate) {
+    for (let i = 0; i < countWorkDays; i += 1) {
+      if (startDate > endDate) break;
+      workSchedule.push(changeFormatDate(startDate));
+      startDate.setDate(startDate.getDate() + 1);
+    }
+
+    for (let i = 0; i < countOffDays; i += 1) {
+      if (startDate > endDate) break;
+      startDate.setDate(startDate.getDate() + 1);
+    }
+  }
+
+  return workSchedule;
 }
 
 /**
@@ -277,8 +304,9 @@ function getWorkSchedule(/* period, countWorkDays, countOffDays */) {
  * Date(2022, 2, 1) => false
  * Date(2020, 2, 1) => true
  */
-function isLeapYear(/* date */) {
-  throw new Error('Not implemented');
+function isLeapYear(date) {
+  const year = date.getFullYear();
+  return new Date(year, 1, 29).getDate() === 29;
 }
 
 module.exports = {
